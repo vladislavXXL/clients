@@ -4,6 +4,7 @@ import model.reqres.Data;
 import model.reqres.User;
 import model.reqres.Users;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -13,11 +14,16 @@ import java.io.IOException;
 
 public class TestReqResClient {
     private static final String BASE_URL = "https://reqres.in/";
+    private static ReqResService client;
+
+    @BeforeClass
+    public static void setUp() {
+        client = new ClientGenerator(BASE_URL)
+                .createClient(ReqResService.class);
+    }
 
     @Test
     public void testReqResClientGetUser() throws IOException {
-        ReqResService client = new ClientGenerator(BASE_URL)
-                .createClient(ReqResService.class);
         Call<Data> callSync = client.getUser("2");
         Response<Data> response = callSync.execute();
         Assert.assertEquals(response.code(), 200);
@@ -31,9 +37,14 @@ public class TestReqResClient {
     }
 
     @Test
+    public void testReqResClientGetUser_404() throws IOException {
+        Call<Data> callSync = client.getUser("23");
+        Response<Data> response = callSync.execute();
+        Assert.assertEquals(response.code(), 404);
+    }
+
+    @Test
     public void testReqResClientGetUsers() throws IOException {
-        ReqResService client = new ClientGenerator(BASE_URL)
-                .createClient(ReqResService.class);
         Call<Users> callSync = client.getUsers(3, 1);
         Response<Users> response = callSync.execute();
         Assert.assertEquals(response.code(), 200);
